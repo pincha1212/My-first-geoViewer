@@ -1,41 +1,21 @@
-# Geovisor de Plazas – Gran Mendoza
+# Geovisor | Área Metropolitana de Mendoza
 
-Geovisor web estático preparado para **GitHub Pages**. No requiere servidor, Node.js ni base de datos.
+Geovisor web estático preparado para GitHub Pages.
 
-## Publicar en GitHub Pages
+## Contenido
+- Exploración orientada a viajeros con accesos rápidos, lugares destacados y enlaces para obtener indicaciones.
+- Buscador geográfico con resultados locales, Photon y Nominatim.
+- Mapas base OpenStreetMap, Esri World Imagery y OpenTopoMap.
+- Capas de plazas y densidad.
+- Mini mapa sincronizado.
+- Geolocalización del dispositivo.
+- Leaflet-Geoman Free 2.20.0 para dibujar, editar, arrastrar y eliminar geometrías.
 
-1. Crear un repositorio en GitHub.
-2. Subir todos los archivos de esta carpeta a la raíz del repositorio:
-   - `index.html`
-   - `app.js`
-   - `style.css`
-   - `FUENTES_IMAGENES.txt`
-   - `FUENTES_PLUGINS.txt`
-   - `README.md`
-3. En el repositorio entrar a **Settings → Pages**.
-4. En **Build and deployment**, seleccionar **Deploy from a branch**.
-5. Elegir la rama `main` y la carpeta `/ (root)`.
-6. Guardar y esperar la publicación.
+## GitHub Pages
+Subir `index.html`, `style.css`, `app.js` y los archivos auxiliares al repositorio. Activar GitHub Pages desde **Settings → Pages → Deploy from a branch**.
 
-GitHub Pages servirá automáticamente `index.html` como página principal.
+El proyecto usa rutas relativas para sus archivos locales y CDN HTTPS para las librerías.
 
-## Dependencias externas
-
-El geovisor utiliza librerías cargadas por HTTPS desde CDN y servicios cartográficos externos. Por eso funciona directamente como sitio estático en GitHub Pages.
-
-- Leaflet
-- Leaflet.markercluster
-- BeautifyMarker
-- Leaflet.heat
-- OpenStreetMap
-- Esri World Imagery
-- OpenTopoMap
-- Photon
-- Nominatim / OpenStreetMap
-- Wikimedia Commons
-
-## Importante
-
-La herramienta **Mi ubicación** requiere HTTPS y permiso de ubicación del navegador. GitHub Pages proporciona HTTPS.
-
-El buscador consulta Photon y Nominatim desde el navegador. Si alguno de esos servicios limita temporalmente las consultas, el resto del geovisor continúa funcionando.
+## Leaflet-Geoman
+Documentación oficial: https://geoman.io/docs/leaflet
+Paquete: https://www.npmjs.com/package/@geoman-io/leaflet-geoman-free

@@ -136,8 +136,8 @@ function activateListItem(id) { document.querySelectorAll('.entity-main').forEac
 
 function bindExplorerList() {
   const list=el('plazaList'); if(!list) return;
-  list.innerHTML=plazas.map(p=>`<div class="entity-item" data-id="${escapeHtml(p.id)}" data-search-text="${escapeHtml(`${p.name} ${p.locality}`.toLowerCase())}"><button class="entity-main" type="button" data-id="${escapeHtml(p.id)}" aria-label="Ir a ${escapeHtml(p.name)}"><img class="plaza-mini" src="${imageUrl(p.imageFile)}" alt="" loading="lazy"><span><span class="plaza-name">${escapeHtml(p.name)}</span><span class="plaza-location">${escapeHtml(p.locality)}</span></span></button><button class="entity-quick" type="button" data-id="${escapeHtml(p.id)}" aria-label="Ir rápidamente a ${escapeHtml(p.name)}">⊕</button></div>`).join('');
-  list.querySelectorAll('.entity-main,.entity-quick').forEach(btn=>btn.addEventListener('click',()=>focusPlaza(btn.dataset.id)));
+  list.innerHTML=plazas.map(p=>`<div class="entity-item" data-id="${escapeHtml(p.id)}" data-search-text="${escapeHtml(`${p.name} ${p.locality}`.toLowerCase())}"><button class="entity-main" type="button" data-id="${escapeHtml(p.id)}" aria-label="Ver ${escapeHtml(p.name)} en el mapa"><img class="plaza-mini" src="${imageUrl(p.imageFile)}" alt="" loading="lazy"><span><span class="plaza-name">${escapeHtml(p.name)}</span><span class="plaza-location">${escapeHtml(p.locality)}</span></span><span class="entity-action-label">Ver mapa</span></button><a class="entity-quick" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}" target="_blank" rel="noopener" aria-label="Cómo llegar a ${escapeHtml(p.name)}">↗</a></div>`).join('');
+  list.querySelectorAll('.entity-main').forEach(btn=>btn.addEventListener('click',()=>focusPlaza(btn.dataset.id)));
   updateExplorerSearch();
 }
 
@@ -191,6 +191,39 @@ function syncMiniMap(){if(!miniMapInstance||!map)return;safe('sincronizar mini m
 function setMiniMapLayer(type){if(!miniMapLayers[type])return;if(miniMapInstance&&selectedMiniMap!==type){const old=miniMapLayers[selectedMiniMap];if(miniMapInstance.hasLayer(old))miniMapInstance.removeLayer(old);miniMapLayers[type].addTo(miniMapInstance);}selectedMiniMap=type;document.querySelectorAll('.mini-choice').forEach(b=>b.classList.toggle('selected',b.dataset.minimap===type));}
 function setMiniMapVisible(visible){miniMapVisible=Boolean(visible);const c=miniMapControl?._container;if(c)c.style.display=miniMapVisible?'block':'none';}
 
+function initGeoman(){
+  if(!map || !map.pm || geomanReady) return;
+  try {
+    map.pm.addControls({
+      position:'bottomleft',
+      drawText:false,
+      drawCircleMarker:false,
+      drawCircle:true,
+      drawMarker:true,
+      drawPolyline:true,
+      drawPolygon:true,
+      drawRectangle:true,
+      editMode:true,
+      dragMode:true,
+      cutPolygon:false,
+      removalMode:true,
+      rotateMode:false,
+      oneBlock:false
+    });
+    geomanReady=true;
+    setGeomanVisible(false);
+    map.pm.setGlobalOptions({snappable:true});
+  } catch(error){console.error('[Geovisor] Leaflet-Geoman',error);}
+}
+function setGeomanVisible(visible){
+  geomanVisible=Boolean(visible);
+  const toolbar=document.querySelector('.leaflet-pm-toolbar');
+  if(toolbar) toolbar.classList.toggle('geoman-toolbar-hidden',!geomanVisible);
+  const btn=el('btnGeoman');
+  if(btn){btn.classList.toggle('selected',geomanVisible);btn.setAttribute('aria-pressed',String(geomanVisible));}
+  if(el('mapHint') && geomanVisible) el('mapHint').textContent='Elegí una herramienta para dibujar o editar geometrías.';
+}
+
 function renderLocalSearch(term){return plazas.filter(p=>`${p.name} ${p.locality}`.toLowerCase().includes(term)).slice(0,5);}
 async function photonSearch(term){try{const url=`https://photon.komoot.io/api/?q=${encodeURIComponent(term)}&limit=5&lat=${INITIAL_VIEW.center[0]}&lon=${INITIAL_VIEW.center[1]}`;const response=await fetch(url,{headers:{Accept:'application/json'}});if(!response.ok)throw new Error(`Photon ${response.status}`);const data=await response.json();return (data.features||[]).map(f=>{const [lng,lat]=f.geometry.coordinates;const p=f.properties||{};return{name:p.name||p.street||'Lugar',center:{lat,lng},properties:p};});}catch(error){console.warn('[Geovisor] Photon no disponible',error);return[];}}
 async function nominatimSearch(term){try{const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=es&countrycodes=ar&q=${encodeURIComponent(term)}`;const response=await fetch(url,{headers:{Accept:'application/json'}});if(!response.ok)throw new Error(`Nominatim ${response.status}`);const data=await response.json();return data.map(r=>({name:r.display_name?.split(',')[0]||r.name||'Lugar',center:{lat:Number(r.lat),lng:Number(r.lon)},properties:{display_name:r.display_name,type:r.type}}));}catch(error){console.warn('[Geovisor] Nominatim no disponible',error);return[];}}
@@ -215,6 +248,11 @@ function bindUI(){
   el('btnLocate').addEventListener('click',()=>{if(!navigator.geolocation){el('mapHint').textContent='La geolocalización no está disponible.';return;}navigator.geolocation.getCurrentPosition(p=>map.flyTo([p.coords.latitude,p.coords.longitude],16,{duration:.7}),()=>{el('mapHint').textContent='No se pudo obtener la ubicación del dispositivo.';el('mapHint').hidden=false;},{enableHighAccuracy:true,timeout:8000});});
   el('btnFullscreen').addEventListener('click',()=>{const target=el('geovisor');if(!document.fullscreenElement)target.requestFullscreen?.();else document.exitFullscreen?.();});
   el('btnMiniMap').addEventListener('click',()=>{el('miniMapOptions').hidden=!el('miniMapOptions').hidden;});
+  el('btnGeoman').addEventListener('click',()=>{if(!geomanReady)initGeoman();setGeomanVisible(!geomanVisible);});
+  el('travelerPlaces').addEventListener('click',()=>{openTab('explorer');el('explorerSearch').focus();});
+  el('travelerLocate').addEventListener('click',()=>el('btnLocate').click());
+  el('travelerSearch').addEventListener('click',()=>{el('searchInput').focus();el('searchInput').select();});
+  el('travelerHome').addEventListener('click',()=>el('btnHome').click());
   document.querySelectorAll('.mini-choice').forEach(b=>b.addEventListener('click',()=>setMiniMapLayer(b.dataset.minimap)));
   el('toggleMiniMap').addEventListener('change',e=>setMiniMapVisible(e.target.checked));
   el('searchInput').addEventListener('input',e=>updateSearchSuggestions(e.target.value));
@@ -229,6 +267,7 @@ function boot(){
   if(!map)return;
   safe('carga de plazas',buildPlazas);
   safe('mini mapa',initMiniMap);
+  safe('Leaflet-Geoman',initGeoman);
   safe('interfaz',bindUI);
   setTimeout(()=>safe('tamaño inicial',()=>map.invalidateSize(false)),250);
   updateLegend();

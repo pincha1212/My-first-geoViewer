@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -50,26 +51,35 @@
       <section id="tabExplorer" class="tab-panel" data-panel="explorer">
         <div class="section-title-row">
           <div>
-            <span class="eyebrow">EXPLORADOR</span>
-            <h3>Información geográfica</h3>
+            <span class="eyebrow">PARA VIAJEROS</span>
+            <h3>Explorar Mendoza</h3>
           </div>
           <span id="plazaCount" class="count-badge">6</span>
         </div>
-        <div class="explorer-search">
-          <span aria-hidden="true">⌕</span>
-          <input id="explorerSearch" type="search" autocomplete="off" placeholder="Filtrar plazas…" aria-label="Filtrar plazas">
-          <button id="clearExplorerSearch" type="button" aria-label="Limpiar filtro">×</button>
+        <p class="explorer-intro">Encontrá lugares destacados, orientate y accedé rápidamente a la información del mapa.</p>
+
+        <div class="traveler-actions" aria-label="Accesos rápidos">
+          <button id="travelerPlaces" class="traveler-action active" type="button"><span>●</span><strong>Lugares</strong><small>Destacados</small></button>
+          <button id="travelerLocate" class="traveler-action" type="button"><span>◎</span><strong>Mi ubicación</strong><small>Orientarme</small></button>
+          <button id="travelerSearch" class="traveler-action" type="button"><span>⌕</span><strong>Buscar</strong><small>Un lugar</small></button>
+          <button id="travelerHome" class="traveler-action" type="button"><span>⌂</span><strong>Inicio</strong><small>Volver al área</small></button>
         </div>
-        <div id="explorerSearchStatus" class="search-status" aria-live="polite"></div>
-        <div class="explorer-section">
-          <button id="plazaSectionToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="plazaSectionContent">
-            <span><span id="sectionChevron" aria-hidden="true">▾</span> Plazas destacadas</span>
+
+        <div class="explorer-section traveler-section">
+          <div class="section-heading">
+            <div><span class="eyebrow">DESTACADOS</span><strong>Plazas de Mendoza</strong></div>
             <span id="sectionCount" class="section-count">6</span>
-          </button>
-          <div id="plazaSectionContent" class="section-content">
-            <div id="plazaList" class="entity-list"></div>
           </div>
+          <div class="explorer-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="explorerSearch" type="search" autocomplete="off" placeholder="Buscar entre los lugares…" aria-label="Buscar entre los lugares destacados">
+            <button id="clearExplorerSearch" type="button" aria-label="Limpiar filtro">×</button>
+          </div>
+          <div id="explorerSearchStatus" class="search-status" aria-live="polite"></div>
+          <div id="plazaList" class="entity-list"></div>
         </div>
+
+        <div class="traveler-tip"><span>i</span><div><strong>Consejo de navegación</strong><small>Seleccioná un lugar para verlo en el mapa y consultar sus datos. Usá el buscador superior para encontrar otros sitios.</small></div></div>
       </section>
 
       <section id="tabBasemap" class="tab-panel" data-panel="basemap" hidden>
@@ -110,6 +120,7 @@
           <button id="btnLocate" class="tool-button" type="button"><span>◎</span>Mi ubicación</button>
           <button id="btnFullscreen" class="tool-button" type="button"><span>⛶</span>Pantalla completa</button>
           <button id="btnMiniMap" class="tool-button" type="button"><span>◫</span>Mini mapa</button>
+          <button id="btnGeoman" class="tool-button" type="button"><span>✎</span>Dibujar en mapa</button>
         </div>
         <div id="miniMapOptions" class="tool-options" hidden>
           <div class="tool-options-title">Vista del mini mapa</div>
@@ -137,6 +148,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.js"></script>
+  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.min.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="./app.js"></script>
 </body>

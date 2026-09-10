@@ -39,3 +39,9 @@ https://opentopomap.org/
 NOTA
 ----
 El mini mapa se implementa mediante una segunda instancia de Leaflet. La capa de densidad utiliza Leaflet.heat 0.2.0.
+
+Leaflet-Geoman (free) 2.20.0
+- https://geoman.io/docs/leaflet
+- https://www.npmjs.com/package/@geoman-io/leaflet-geoman-free
+- CDN: https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.min.js
+- CSS: https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.css
