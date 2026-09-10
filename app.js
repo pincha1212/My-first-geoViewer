@@ -201,8 +201,8 @@ async function runSearch(term){const query=term.trim();if(!query)return;const lo
 function updateSearchSuggestions(term){const clean=term.trim().toLowerCase();if(!clean){el('searchResults').hidden=true;return;}renderSearchBox(renderLocalSearch(clean),[]);clearTimeout(searchTimer);searchTimer=setTimeout(()=>safeAsync('sugerencias Photon',async()=>{const [photon,nominatim]=await Promise.all([photonSearch(`${clean}, Mendoza, Argentina`),nominatimSearch(`${clean}, Mendoza, Argentina`)]);if(el('searchInput')?.value.trim().toLowerCase()===clean)renderSearchBox(renderLocalSearch(clean),mergeRemoteResults(photon,nominatim));}),350);}
 
 function bindUI(){
-  el('btnClosePanel').addEventListener('click',()=>el('controlPanel').classList.add('closed'));
-  el('btnOpenPanel').addEventListener('click',()=>el('controlPanel').classList.remove('closed'));
+  el('btnClosePanel').addEventListener('click',()=>{el('controlPanel').classList.add('closed');setTimeout(()=>syncMiniMap(),80);});
+  el('btnOpenPanel').addEventListener('click',()=>{el('controlPanel').classList.remove('closed');setTimeout(()=>syncMiniMap(),80);});
   el('btnCloseInfo').addEventListener('click',hideInfoPanel);
   document.querySelectorAll('.panel-tab').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
   el('plazaSectionToggle').addEventListener('click',()=>{const btn=el('plazaSectionToggle'),expanded=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',String(!expanded));el('plazaSectionContent').hidden=expanded;el('sectionChevron').textContent=expanded?'▸':'▾';});
