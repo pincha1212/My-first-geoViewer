@@ -1,0 +1,41 @@
+FUENTES DE LIBRERÍAS Y CAPAS
+=============================
+
+Leaflet 1.9.4
+https://unpkg.com/leaflet@1.9.4/dist/leaflet.js
+https://unpkg.com/leaflet@1.9.4/dist/leaflet.css
+
+Leaflet.Control.Geocoder 4.0.0
+https://unpkg.com/leaflet-control-geocoder@4.0.0/dist/Control.Geocoder.js
+https://unpkg.com/leaflet-control-geocoder@4.0.0/dist/Control.Geocoder.css
+
+Leaflet.markercluster 1.5.3
+https://github.com/Leaflet/Leaflet.markercluster
+
+BeautifyMarker 1.0.9
+https://github.com/andrewwhitby/leaflet-beautify-marker-icon
+
+Leaflet.heat 0.2.0
+https://github.com/Leaflet/Leaflet.heat
+
+Photon
+https://photon.komoot.io/
+
+Nominatim
+https://nominatim.openstreetmap.org/
+
+CAPAS BASE
+----------
+
+OpenStreetMap
+https://www.openstreetmap.org/
+
+Esri World Imagery
+https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer
+
+OpenTopoMap
+https://opentopomap.org/
+
+NOTA
+----
+El mini mapa se implementa mediante una segunda instancia de Leaflet. La capa de densidad utiliza Leaflet.heat 0.2.0.

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Geovisor web del Área Metropolitana de Mendoza.">
+  <title>Geovisor | Área Metropolitana de Mendoza</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="geovisor" class="geovisor">
+    <div id="map" class="map" aria-label="Mapa interactivo del Área Metropolitana de Mendoza"></div>
+
+    <header id="topbar" class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">GIS</div>
+        <div class="brand-text">
+          <h1>Área Metropolitana de Mendoza</h1>
+          <p>Geovisor de información geográfica</p>
+        </div>
+      </div>
+      <div id="searchWrap" class="search-wrap">
+        <span class="search-symbol" aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" autocomplete="off" placeholder="Buscar una plaza, dirección o lugar…" aria-label="Buscar una plaza, dirección o lugar">
+        <button id="clearSearch" class="search-clear" type="button" aria-label="Limpiar búsqueda">×</button>
+        <div id="searchResults" class="search-results" hidden></div>
+      </div>
+    </header>
+
+    <aside id="controlPanel" class="control-panel" aria-label="Panel de control del geovisor">
+      <div class="panel-head">
+        <div>
+          <span class="eyebrow">GEOVISOR</span>
+          <h2>Herramientas</h2>
+        </div>
+        <button id="btnClosePanel" class="close-button" type="button" aria-label="Cerrar panel">×</button>
+      </div>
+
+      <nav id="panelTabs" class="panel-tabs" aria-label="Secciones del panel">
+        <button class="panel-tab active" type="button" data-tab="explorer" aria-selected="true">Explorar</button>
+        <button class="panel-tab" type="button" data-tab="basemap" aria-selected="false">Mapa base</button>
+        <button class="panel-tab" type="button" data-tab="layers" aria-selected="false">Capas</button>
+        <button class="panel-tab" type="button" data-tab="tools" aria-selected="false">Herramientas</button>
+      </nav>
+
+      <section id="tabExplorer" class="tab-panel" data-panel="explorer">
+        <div class="section-title-row">
+          <div>
+            <span class="eyebrow">EXPLORADOR</span>
+            <h3>Información geográfica</h3>
+          </div>
+          <span id="plazaCount" class="count-badge">6</span>
+        </div>
+        <div class="explorer-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="explorerSearch" type="search" autocomplete="off" placeholder="Filtrar plazas…" aria-label="Filtrar plazas">
+          <button id="clearExplorerSearch" type="button" aria-label="Limpiar filtro">×</button>
+        </div>
+        <div id="explorerSearchStatus" class="search-status" aria-live="polite"></div>
+        <div class="explorer-section">
+          <button id="plazaSectionToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="plazaSectionContent">
+            <span><span id="sectionChevron" aria-hidden="true">▾</span> Plazas destacadas</span>
+            <span id="sectionCount" class="section-count">6</span>
+          </button>
+          <div id="plazaSectionContent" class="section-content">
+            <div id="plazaList" class="entity-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabBasemap" class="tab-panel" data-panel="basemap" hidden>
+        <div class="section-title-row">
+          <div><span class="eyebrow">CARTOGRAFÍA</span><h3>Mapa base</h3></div>
+        </div>
+        <div id="baseMapOptions" class="choice-grid">
+          <button class="choice-card selected" type="button" data-basemap="street"><span class="choice-thumb street-thumb"></span><span>OpenStreetMap</span></button>
+          <button class="choice-card" type="button" data-basemap="satellite"><span class="choice-thumb satellite-thumb"></span><span>Satélite</span></button>
+          <button class="choice-card" type="button" data-basemap="topo"><span class="choice-thumb topo-thumb"></span><span>OpenTopoMap</span></button>
+        </div>
+      </section>
+
+      <section id="tabLayers" class="tab-panel" data-panel="layers" hidden>
+        <div class="section-title-row">
+          <div><span class="eyebrow">CONTENIDO</span><h3>Capas</h3></div>
+        </div>
+        <div class="layer-stack">
+          <button id="quickPlazas" class="layer-button selected" type="button" aria-pressed="true">
+            <span class="layer-dot plaza-dot"></span><span>Plazas destacadas</span><span class="layer-state">Visible</span>
+          </button>
+          <button id="quickHeat" class="layer-button" type="button" aria-pressed="false">
+            <span class="layer-dot heat-dot"></span><span>Densidad</span><span class="layer-state">Oculta</span>
+          </button>
+          <label id="plazaOpacityWrap" class="range-row">
+            <span>Opacidad de plazas</span>
+            <span class="range-value"><output id="opacityPlazasValue">100%</output><input id="opacityPlazas" type="range" min="0" max="100" value="100"></span>
+          </label>
+        </div>
+      </section>
+
+      <section id="tabTools" class="tab-panel" data-panel="tools" hidden>
+        <div class="section-title-row">
+          <div><span class="eyebrow">NAVEGACIÓN</span><h3>Herramientas</h3></div>
+        </div>
+        <div class="tool-grid">
+          <button id="btnHome" class="tool-button" type="button"><span>⌂</span>Vista inicial</button>
+          <button id="btnLocate" class="tool-button" type="button"><span>◎</span>Mi ubicación</button>
+          <button id="btnFullscreen" class="tool-button" type="button"><span>⛶</span>Pantalla completa</button>
+          <button id="btnMiniMap" class="tool-button" type="button"><span>◫</span>Mini mapa</button>
+        </div>
+        <div id="miniMapOptions" class="tool-options" hidden>
+          <div class="tool-options-title">Vista del mini mapa</div>
+          <div class="mini-choice-grid">
+            <button class="mini-choice selected" type="button" data-minimap="street">Mapa</button>
+            <button class="mini-choice" type="button" data-minimap="satellite">Satélite</button>
+            <button class="mini-choice" type="button" data-minimap="topo">Topográfico</button>
+          </div>
+          <label class="visibility-row"><span>Mostrar mini mapa</span><input id="toggleMiniMap" type="checkbox" checked></label>
+        </div>
+      </section>
+    </aside>
+
+    <button id="btnOpenPanel" class="open-panel" type="button" aria-label="Abrir panel de control">☰</button>
+
+    <div id="infoPanel" class="info-panel" hidden>
+      <button id="btnCloseInfo" class="close-button info-close" type="button" aria-label="Cerrar información">×</button>
+      <div id="infoContent"></div>
+    </div>
+
+    <div id="mapHint" class="map-hint">Seleccioná una entidad para consultar su información.</div>
+    <div id="mapStatus" class="map-status" aria-live="polite"><span id="coordinateStatus">Lat: — &nbsp; Lon: —</span><i></i><span id="scaleStatus">Zoom: 12.3</span></div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
