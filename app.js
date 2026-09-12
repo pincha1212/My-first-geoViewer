@@ -6,6 +6,7 @@ function boot(){
   safe('herramientas de dibujo Geoman',initGeomanBasic);
   safe('plugins de shramov',initShramovLeafletPlugins);
   safe('carga de plazas',buildPlazas);
+  safe('puntos personalizados',initUserPoints);
   safe('mini mapa',initMiniMap);
   safe('interfaz',bindUI);
   setTimeout(()=>safe('tamaño inicial',()=>map.invalidateSize(false)),250);

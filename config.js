@@ -2,6 +2,8 @@
 
 const INITIAL_VIEW = { center: [-32.895, -68.842], zoom: 12.3 };
 
+const USER_POINTS_STORAGE_KEY = 'geovisor_user_points_v1';
+
 const SEARCH_CATEGORIES = {
   hospital: { overpass: 'amenity=hospital', label: 'Hospitales' },
   farmacia: { overpass: 'amenity=pharmacy', label: 'Farmacias' },

@@ -3,6 +3,35 @@
 let layerControl = null;
 let railwayOverlay = null;
 
+function ensureUserPointsLayerRow() {
+  const stack = document.querySelector('.layer-stack');
+  if (!stack || el('quickUserPoints')) return;
+  const button = document.createElement('button');
+  button.id = 'quickUserPoints';
+  button.className = 'layer-button selected';
+  button.type = 'button';
+  button.setAttribute('aria-pressed', 'true');
+  button.innerHTML = '<span class="layer-dot user-point-dot"></span><span class="layer-copy"><strong>Puntos personalizados</strong><small><span id="userPointLayerCount">0</span> puntos</small></span><span class="layer-state">Visible</span><input class="layer-check" type="checkbox" checked tabindex="-1" aria-hidden="true">';
+  button.addEventListener('click', () => {
+    const visible = userPointsCluster ? map.hasLayer(userPointsCluster) : false;
+    if (visible) {
+      map.removeLayer(userPointsCluster);
+    } else if (userPointsCluster) {
+      userPointsCluster.addTo(map);
+    }
+    syncLayerRow('quickUserPoints', !visible, 'Visible', 'Oculta');
+    updateLayerSummary();
+    syncNativeLayerControl();
+  });
+  stack.appendChild(button);
+  updateUserPointsLayerCount();
+}
+
+function updateUserPointsLayerCount() {
+  const count = el('userPointLayerCount');
+  if (count) count.textContent = String(userPoints?.length || 0);
+}
+
 function syncLayerRow(buttonId, visible, visibleText='Visible', hiddenText='Oculta') {
   const button = el(buttonId);
   if (!button) return;
@@ -57,6 +86,7 @@ function initRailwayOverlay() {
 
 function initLayerControl() {
   if (!map || !L.control?.layers || !plazaMarkerCluster) return;
+  ensureUserPointsLayerRow();
   initRailwayOverlay();
   safe('control nativo de capas', () => {
     const overlays = {
@@ -64,6 +94,7 @@ function initLayerControl() {
     };
     if (heatLayer) overlays['Densidad'] = heatLayer;
     if (railwayOverlay) overlays['Red ferroviaria'] = railwayOverlay;
+    if (userPointsCluster) overlays['Puntos personalizados'] = userPointsCluster;
     layerControl = L.control.layers(null, overlays, {
       collapsed: true,
       position: 'topright',
@@ -85,6 +116,7 @@ function syncNativeLayerControl() {
     const text = label?.textContent?.trim() || '';
     if (text === 'Plazas destacadas' && plazaMarkerCluster) input.checked = map.hasLayer(plazaMarkerCluster);
     if (text === 'Densidad' && heatLayer) input.checked = map.hasLayer(heatLayer);
+    if (text === 'Puntos personalizados' && userPointsCluster) input.checked = map.hasLayer(userPointsCluster);
   });
 }
 
@@ -123,10 +155,13 @@ function updateLayerSummary() {
   const summary = el('layerSummary');
   if (!summary) return;
   const visible = [
-    map?.hasLayer(plazaMarkerCluster) ? '1' : '',
-    heatVisible ? '1' : ''
+    map && plazaMarkerCluster && map.hasLayer(plazaMarkerCluster) ? '1' : '',
+    map && heatLayer && map.hasLayer(heatLayer) ? '1' : '',
+    map && userPointsCluster && map.hasLayer(userPointsCluster) ? '1' : ''
   ].filter(Boolean).length;
-  summary.textContent = `${visible} de 2 capas activas`;
+  summary.textContent = `${visible} de 3 capas activas`;
+  if (typeof updateUserPointsLayerCount === 'function') updateUserPointsLayerCount();
+  if (typeof syncLayerRow === 'function') syncLayerRow('quickUserPoints', Boolean(map && userPointsCluster && map.hasLayer(userPointsCluster)), 'Visible', 'Oculta');
 }
 
 function openTab(tab) {

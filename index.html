@@ -139,6 +139,22 @@
           <p class="geoman-note">Marcá puntos, líneas, áreas o rectángulos directamente sobre el mapa.</p>
           <button id="btnGeoman" class="tool-button geoman-button" type="button"><span>✎</span>Activar dibujo</button>
         </div>
+        <div class="user-points">
+          <div class="tool-options-title">Puntos personalizados</div>
+          <p class="geoman-note">Creá puntos propios, editá su descripción o cargalos desde un archivo/URL.</p>
+          <button id="btnCreatePoint" class="tool-button" type="button">＋ Crear punto</button>
+          <div id="userPointsOptions" class="tool-options" hidden>
+            <button id="btnPointMarkMap" class="tool-button" type="button">◎ Marcar en el mapa</button>
+            <button id="btnPointFromSource" class="tool-button" type="button">⤓ Cargar archivo / URL</button>
+          </div>
+          <div id="userPointSourcePanel" class="tool-options" hidden>
+            <label>Archivo GeoJSON <input id="userPointFile" type="file" accept=".geojson,.json,application/geo+json,application/json"></label>
+            <label>URL GeoJSON <input id="userPointUrl" type="url" placeholder="https://…"></label>
+            <button id="btnPointUrlLoad" class="layer-import-button" type="button">Cargar desde URL</button>
+            <div id="userPointStatus" class="layer-import-status" aria-live="polite"></div>
+          </div>
+          <button id="btnCancelPointMode" class="layer-actions button" type="button" hidden>Cancelar marcado</button>
+        </div>
         <div id="miniMapOptions" class="tool-options" hidden>
           <div class="tool-options-title">Vista del mini mapa</div>
           <div class="mini-choice-grid">
@@ -158,6 +174,7 @@
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
@@ -178,6 +195,7 @@
   <script src="./minimap.js"></script>
   <script src="./search.js"></script>
   <script src="./geoman.js"></script>
+  <script src="./userPoints.js"></script>
   <script src="./ui.js"></script>
   <script src="./app.js"></script>
 </body>

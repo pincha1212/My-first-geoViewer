@@ -13,3 +13,6 @@ Incluye navegación, ubicación, pantalla completa, mini mapa, dibujo con Leafle
 
 ## Publicar en GitHub Pages
 Subir los archivos del proyecto a la raíz del repositorio y seleccionar GitHub Pages desde Settings → Pages → Deploy from a branch → main → / (root).
+
+
+V7: se incorpora leaflet-rotate 0.2.8 para rotación del mapa y una brújula propia minimalista.
