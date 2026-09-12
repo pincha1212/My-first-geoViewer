@@ -113,10 +113,59 @@ function refreshUserPointsCluster() {
   buildUserPointsCluster();
 }
 
+function renderUserPointsList() {
+  const list = el('userPointsList');
+  const empty = el('userPointsEmpty');
+  if (!list || !empty) return;
+  list.innerHTML = '';
+  empty.hidden = userPoints.length > 0;
+
+  userPoints.forEach(point => {
+    const item = document.createElement('div');
+    item.className = 'up-item';
+    item.innerHTML = `<button class="up-item-main" type="button" data-user-point-id="${escapeHtml(point.id)}"><span><strong>${escapeHtml(point.name || 'Sin nombre')}</strong><small>${Number(point.lat).toFixed(6)}, ${Number(point.lng).toFixed(6)}</small></span></button><button class="up-item-delete" type="button" data-user-point-delete="${escapeHtml(point.id)}" aria-label="Eliminar ${escapeHtml(point.name || 'punto')}">×</button>`;
+    item.querySelector('[data-user-point-id]')?.addEventListener('click', () => openPointEditor(point));
+    item.querySelector('[data-user-point-delete]')?.addEventListener('click', () => deleteUserPoint(point.id));
+    list.appendChild(item);
+  });
+
+  updateUserPointsLayerCount?.();
+}
+
+function exportUserPointsGeoJSON() {
+  const data = {
+    type: 'FeatureCollection',
+    features: userPoints.map(point => ({
+      type: 'Feature',
+      properties: {
+        name: point.name,
+        description: point.description,
+        createdAt: point.createdAt
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [point.lng, point.lat]
+      }
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/geo+json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'puntos-personalizados.geojson';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  userPointStatus(userPoints.length ? `Se exportaron ${userPoints.length} punto${userPoints.length === 1 ? '' : 's'} personalizado${userPoints.length === 1 ? '' : 's'}.` : 'No hay puntos personalizados para exportar.');
+}
+
 function initUserPoints() {
   if (!map) return;
   loadUserPointsFromStorage();
   buildUserPointsCluster();
+  renderUserPointsList();
   if (typeof ensureUserPointsLayerRow === 'function') ensureUserPointsLayerRow();
   if (typeof syncNativeLayerControl === 'function') syncNativeLayerControl();
   if (userPointStorageAvailable === false) return;
@@ -255,6 +304,7 @@ function savePointFromEditor() {
 
   const persisted = saveUserPointsToStorage();
   refreshUserPointsCluster();
+  renderUserPointsList();
   map.closePopup();
   editingUserPointId = null;
   userPointDraftLatLng = null;
@@ -268,6 +318,7 @@ function deleteUserPoint(id) {
   userPoints = userPoints.filter(item => item.id !== id);
   const persisted = saveUserPointsToStorage();
   refreshUserPointsCluster();
+  renderUserPointsList();
   map.closePopup();
   editingUserPointId = null;
   if (persisted) userPointStatus(`${userPoints.length} punto${userPoints.length === 1 ? '' : 's'} personalizado${userPoints.length === 1 ? '' : 's'}.`);
@@ -302,6 +353,7 @@ function addImportedUserPoints(points) {
   userPoints.push(...points);
   const persisted = saveUserPointsToStorage();
   refreshUserPointsCluster();
+  renderUserPointsList();
   if (persisted) userPointStatus(`Se cargaron ${points.length} punto${points.length === 1 ? '' : 's'} personalizado${points.length === 1 ? '' : 's'}.`);
 }
 

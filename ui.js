@@ -17,13 +17,29 @@ function bindUI(){
   el('btnMiniMap').addEventListener('click',()=>{el('miniMapOptions').hidden=!el('miniMapOptions').hidden;});
   document.querySelectorAll('.mini-choice').forEach(b=>b.addEventListener('click',()=>setMiniMapLayer(b.dataset.minimap)));
   el('toggleMiniMap').addEventListener('change',e=>setMiniMapVisible(e.target.checked));
-  el('btnCreatePoint').addEventListener('click',()=>{const options=el('userPointsOptions');if(options)options.hidden=!options.hidden;});
-  el('btnPointMarkMap').addEventListener('click',()=>{el('userPointSourcePanel').hidden=true;startCreatePoint();});
-  el('btnPointFromSource').addEventListener('click',()=>{el('userPointSourcePanel').hidden=!el('userPointSourcePanel').hidden;});
+  el('btnUserPoints').addEventListener('click',()=>{
+    const button=el('btnUserPoints');
+    const panel=el('userPointsPanel');
+    if(!button||!panel)return;
+    const expanded=button.getAttribute('aria-expanded')==='true';
+    button.setAttribute('aria-expanded',String(!expanded));
+    panel.hidden=expanded;
+  });
+  el('btnPointMarkMap').addEventListener('click',startCreatePoint);
   el('userPointFile').addEventListener('change',e=>{safeAsync('carga de puntos desde archivo',()=>importPointsFromFile(e.target.files?.[0]));});
   el('userPointUrl').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();safeAsync('carga de puntos desde URL',()=>importPointsFromUrl(e.target.value));}});
   el('btnPointUrlLoad').addEventListener('click',()=>safeAsync('carga de puntos desde URL',()=>importPointsFromUrl(el('userPointUrl').value)));
   el('btnCancelPointMode').addEventListener('click',cancelCreatePoint);
+  el('btnUserPointsExport').addEventListener('click',exportUserPointsGeoJSON);
+  el('btnUserPointsClear').addEventListener('click',()=>{
+    if(!userPoints.length)return;
+    if(!window.confirm('¿Borrar todos los puntos personalizados?'))return;
+    userPoints=[];
+    saveUserPointsToStorage();
+    refreshUserPointsCluster();
+    renderUserPointsList();
+    userPointStatus('Todos los puntos personalizados fueron eliminados.');
+  });
   el('searchInput').addEventListener('input',e=>{if(!e.target.value.trim())el('searchResults').hidden=true;updateSearchSuggestions(e.target.value);});
   el('btnClearThemeResults').addEventListener('click',clearThemeSearchResults);
   el('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(searchTimer);runSearch(e.target.value);}if(e.key==='Escape'){e.target.value='';el('searchResults').hidden=true;}});
