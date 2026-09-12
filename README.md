@@ -1,21 +1,18 @@
-# Geovisor | Área Metropolitana de Mendoza
+# Geovisor de Plazas – Gran Mendoza
 
 Geovisor web estático preparado para GitHub Pages.
 
-## Contenido
-- Exploración orientada a viajeros con accesos rápidos, lugares destacados y enlaces para obtener indicaciones.
-- Buscador geográfico con resultados locales, Photon y Nominatim.
-- Mapas base OpenStreetMap, Esri World Imagery y OpenTopoMap.
-- Capas de plazas y densidad.
-- Mini mapa sincronizado.
-- Geolocalización del dispositivo.
-- Leaflet-Geoman Free 2.20.0 para dibujar, editar, arrastrar y eliminar geometrías.
+## Mapas base
+Se utilizan tres mapas base: Mapa de calles Esri, Satélite Esri y OpenTopoMap.
 
-## GitHub Pages
-Subir `index.html`, `style.css`, `app.js` y los archivos auxiliares al repositorio. Activar GitHub Pages desde **Settings → Pages → Deploy from a branch**.
+## Capas
+Incluye plazas destacadas, densidad, red ferroviaria y carga local de archivos GPX, KML y TopoJSON.
 
-El proyecto usa rutas relativas para sus archivos locales y CDN HTTPS para las librerías.
+## Herramientas
+Incluye navegación, ubicación, pantalla completa, mini mapa, dibujo con Leaflet-Geoman e impresión con Leaflet Browser Print.
 
-## Leaflet-Geoman
-Documentación oficial: https://geoman.io/docs/leaflet
-Paquete: https://www.npmjs.com/package/@geoman-io/leaflet-geoman-free
+## Publicar en GitHub Pages
+Subir los archivos del proyecto a la raíz del repositorio y seleccionar GitHub Pages desde Settings → Pages → Deploy from a branch → main → / (root).
+
+
+V7: se incorpora leaflet-rotate 0.2.8 para rotación del mapa y una brújula propia minimalista.

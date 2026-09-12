@@ -9,12 +9,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.css">
+  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.1/dist/leaflet-geoman.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-minimap@3.6.1/dist/Control.MiniMap.min.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <main id="geovisor" class="geovisor">
     <div id="map" class="map" aria-label="Mapa interactivo del Área Metropolitana de Mendoza"></div>
+
+    <button id="btnClearThemeResults" class="theme-clear-button" type="button" hidden>Limpiar resultados</button>
 
     <header id="topbar" class="topbar">
       <div class="brand">
@@ -27,7 +30,6 @@
       <div id="searchWrap" class="search-wrap">
         <span class="search-symbol" aria-hidden="true">⌕</span>
         <input id="searchInput" type="search" autocomplete="off" placeholder="Buscar una plaza, dirección o lugar…" aria-label="Buscar una plaza, dirección o lugar">
-        <button id="clearSearch" class="search-clear" type="button" aria-label="Limpiar búsqueda">×</button>
         <div id="searchResults" class="search-results" hidden></div>
       </div>
     </header>
@@ -51,35 +53,20 @@
       <section id="tabExplorer" class="tab-panel" data-panel="explorer">
         <div class="section-title-row">
           <div>
-            <span class="eyebrow">PARA VIAJEROS</span>
-            <h3>Explorar Mendoza</h3>
+            <span class="eyebrow">EXPLORADOR</span>
+            <h3>Información geográfica</h3>
           </div>
           <span id="plazaCount" class="count-badge">6</span>
         </div>
-        <p class="explorer-intro">Encontrá lugares destacados, orientate y accedé rápidamente a la información del mapa.</p>
-
-        <div class="traveler-actions" aria-label="Accesos rápidos">
-          <button id="travelerPlaces" class="traveler-action active" type="button"><span>●</span><strong>Lugares</strong><small>Destacados</small></button>
-          <button id="travelerLocate" class="traveler-action" type="button"><span>◎</span><strong>Mi ubicación</strong><small>Orientarme</small></button>
-          <button id="travelerSearch" class="traveler-action" type="button"><span>⌕</span><strong>Buscar</strong><small>Un lugar</small></button>
-          <button id="travelerHome" class="traveler-action" type="button"><span>⌂</span><strong>Inicio</strong><small>Volver al área</small></button>
-        </div>
-
-        <div class="explorer-section traveler-section">
-          <div class="section-heading">
-            <div><span class="eyebrow">DESTACADOS</span><strong>Plazas de Mendoza</strong></div>
+        <div class="explorer-section">
+          <button id="plazaSectionToggle" class="section-toggle" type="button" aria-expanded="true" aria-controls="plazaSectionContent">
+            <span><span id="sectionChevron" aria-hidden="true">▾</span> Plazas destacadas</span>
             <span id="sectionCount" class="section-count">6</span>
+          </button>
+          <div id="plazaSectionContent" class="section-content">
+            <div id="plazaList" class="entity-list"></div>
           </div>
-          <div class="explorer-search">
-            <span aria-hidden="true">⌕</span>
-            <input id="explorerSearch" type="search" autocomplete="off" placeholder="Buscar entre los lugares…" aria-label="Buscar entre los lugares destacados">
-            <button id="clearExplorerSearch" type="button" aria-label="Limpiar filtro">×</button>
-          </div>
-          <div id="explorerSearchStatus" class="search-status" aria-live="polite"></div>
-          <div id="plazaList" class="entity-list"></div>
         </div>
-
-        <div class="traveler-tip"><span>i</span><div><strong>Consejo de navegación</strong><small>Seleccioná un lugar para verlo en el mapa y consultar sus datos. Usá el buscador superior para encontrar otros sitios.</small></div></div>
       </section>
 
       <section id="tabBasemap" class="tab-panel" data-panel="basemap" hidden>
@@ -87,8 +74,8 @@
           <div><span class="eyebrow">CARTOGRAFÍA</span><h3>Mapa base</h3></div>
         </div>
         <div id="baseMapOptions" class="choice-grid">
-          <button class="choice-card selected" type="button" data-basemap="street"><span class="choice-thumb street-thumb"></span><span>OpenStreetMap</span></button>
-          <button class="choice-card" type="button" data-basemap="satellite"><span class="choice-thumb satellite-thumb"></span><span>Satélite</span></button>
+          <button class="choice-card selected" type="button" data-basemap="street"><span class="choice-thumb street-thumb"></span><span>Mapa de calles Esri</span></button>
+          <button class="choice-card" type="button" data-basemap="satellite"><span class="choice-thumb satellite-thumb"></span><span>Satélite Esri</span></button>
           <button class="choice-card" type="button" data-basemap="topo"><span class="choice-thumb topo-thumb"></span><span>OpenTopoMap</span></button>
         </div>
       </section>
@@ -96,19 +83,45 @@
       <section id="tabLayers" class="tab-panel" data-panel="layers" hidden>
         <div class="section-title-row">
           <div><span class="eyebrow">CONTENIDO</span><h3>Capas</h3></div>
+          <span id="layerSummary" class="count-badge">1 de 2</span>
         </div>
+        <p class="tab-intro">Activá o desactivá información sobre el mapa sin cambiar la cartografía de fondo.</p>
+
+        <div class="layer-section-label">CAPAS INFORMATIVAS</div>
         <div class="layer-stack">
           <button id="quickPlazas" class="layer-button selected" type="button" aria-pressed="true">
-            <span class="layer-dot plaza-dot"></span><span>Plazas destacadas</span><span class="layer-state">Visible</span>
+            <span class="layer-dot plaza-dot"></span>
+            <span class="layer-copy"><strong>Plazas destacadas</strong><small>6 puntos de interés</small></span>
+            <span class="layer-state">Visible</span>
+            <input class="layer-check" type="checkbox" checked tabindex="-1" aria-hidden="true">
           </button>
           <button id="quickHeat" class="layer-button" type="button" aria-pressed="false">
-            <span class="layer-dot heat-dot"></span><span>Densidad</span><span class="layer-state">Oculta</span>
+            <span class="layer-dot heat-dot"></span>
+            <span class="layer-copy"><strong>Densidad</strong><small>Concentración de plazas</small></span>
+            <span class="layer-state">Oculta</span>
+            <input class="layer-check" type="checkbox" tabindex="-1" aria-hidden="true">
           </button>
-          <label id="plazaOpacityWrap" class="range-row">
-            <span>Opacidad de plazas</span>
-            <span class="range-value"><output id="opacityPlazasValue">100%</output><input id="opacityPlazas" type="range" min="0" max="100" value="100"></span>
-          </label>
         </div>
+
+        <div class="layer-section-label layer-section-label-spaced">APARIENCIA</div>
+        <label id="plazaOpacityWrap" class="range-row">
+          <span><strong>Opacidad de plazas</strong><small>Afecta los marcadores del mapa</small></span>
+          <span class="range-value"><output id="opacityPlazasValue">100%</output><input id="opacityPlazas" type="range" min="0" max="100" value="100"></span>
+        </label>
+
+        <div class="layer-section-label layer-section-label-spaced">ACCIONES RÁPIDAS</div>
+        <div class="layer-actions">
+          <button id="showAllLayers" type="button">Mostrar todas</button>
+          <button id="hideAllLayers" type="button">Ocultar todas</button>
+        </div>
+        <div class="layer-import">
+          <div class="layer-section-label layer-section-label-spaced">CAPAS EXTERNAS</div>
+          <p class="tab-intro">Cargá archivos geográficos locales en formato GPX, KML o TopoJSON.</p>
+          <input id="layerFileInput" type="file" accept=".gpx,.kml,.topojson,.json,application/gpx+xml,application/vnd.google-earth.kml+xml,application/json" hidden>
+          <button id="btnLoadLayer" class="layer-import-button" type="button"><span>＋</span> Cargar capa</button>
+          <div id="layerImportStatus" class="layer-import-status" aria-live="polite"></div>
+        </div>
+        <div class="layer-native-note">Control de capas Leaflet disponible en el mapa para una administración rápida de superposiciones.</div>
       </section>
 
       <section id="tabTools" class="tab-panel" data-panel="tools" hidden>
@@ -120,7 +133,11 @@
           <button id="btnLocate" class="tool-button" type="button"><span>◎</span>Mi ubicación</button>
           <button id="btnFullscreen" class="tool-button" type="button"><span>⛶</span>Pantalla completa</button>
           <button id="btnMiniMap" class="tool-button" type="button"><span>◫</span>Mini mapa</button>
-          <button id="btnGeoman" class="tool-button" type="button"><span>✎</span>Dibujar en mapa</button>
+        </div>
+        <div class="geoman-basic" aria-label="Dibujo básico en el mapa">
+          <div class="tool-options-title">Dibujo en mapa</div>
+          <p class="geoman-note">Marcá puntos, líneas, áreas o rectángulos directamente sobre el mapa.</p>
+          <button id="btnGeoman" class="tool-button geoman-button" type="button"><span>✎</span>Activar dibujo</button>
         </div>
         <div id="miniMapOptions" class="tool-options" hidden>
           <div class="tool-options-title">Vista del mini mapa</div>
@@ -136,20 +153,33 @@
 
     <button id="btnOpenPanel" class="open-panel" type="button" aria-label="Abrir panel de control">☰</button>
 
-    <div id="infoPanel" class="info-panel" hidden>
-      <button id="btnCloseInfo" class="close-button info-close" type="button" aria-label="Cerrar información">×</button>
-      <div id="infoContent"></div>
-    </div>
-
     <div id="mapHint" class="map-hint">Seleccioná una entidad para consultar su información.</div>
     <div id="mapStatus" class="map-status" aria-live="polite"><span id="coordinateStatus">Lat: — &nbsp; Lon: —</span><i></i><span id="scaleStatus">Zoom: 12.3</span></div>
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/beautifymarker@1.0.9/leaflet-beautify-marker-icon.min.js"></script>
-  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.0/dist/leaflet-geoman.min.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.20.1/dist/leaflet-geoman.min.js"></script>
+  <script src="https://unpkg.com/leaflet-minimap@3.6.1/dist/Control.MiniMap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-plugins@3.4.0/layer/vector/GPX.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-plugins@3.4.0/layer/vector/KML.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet-plugins@3.4.0/layer/vector/TOPOJSON.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.browser.print@2.0.2/dist/leaflet.browser.print.min.js"></script>
+  <script src="./leaflet-plugins.js"></script>
+  <script src="./config.js"></script>
+  <script src="./state.js"></script>
+  <script src="./utils.js"></script>
+  <script src="./map.js"></script>
+  <script src="./plazas.js"></script>
+  <script src="./explorer.js"></script>
+  <script src="./layers.js"></script>
+  <script src="./minimap.js"></script>
+  <script src="./search.js"></script>
+  <script src="./geoman.js"></script>
+  <script src="./ui.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
